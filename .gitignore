@@ -5,3 +5,5 @@ __pycache__/
 *.py[cod]
 *$py.class
 .vscode/
+data/vectorstore/832880df-a255-436f-93e9-f78be9b93f48
+data/vectorstore/chroma.sqlite3
