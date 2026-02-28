@@ -1,0 +1,10 @@
+langchain
+langchain_text_splitters
+dotenv
+langchain_community
+pymupdf
+langchain_chroma
+langchain_google_genai
+langchain_groq
+gradio
+openpyxl
