@@ -75,16 +75,9 @@ Toàn bộ quá trình này giúp chatbot có khả năng trả lời các câu 
 
 ## Sử dụng
 
-1.  **Nhập dữ liệu (Data Ingestion)**:
-    Trước khi chạy ứng dụng lần đầu tiên, bạn cần nhập dữ liệu vào kho lưu trữ vector Chroma. Chạy lệnh sau từ thư mục gốc:
-    ```bash
-    python -m src.data_prep.ingest_chroma
-    ```
-    Script này sẽ xử lý dữ liệu từ `data/preprocessed/luanngu.json` và lưu trữ nó trong thư mục `data/vectorstore`.
-
-2.  **Chạy Chatbot**:
+1.  **Chạy Chatbot**:
     Để khởi động chatbot, hãy chạy tệp `app.py`:
     ```bash
     python app.py
     ```
-    Lệnh này sẽ khởi chạy một giao diện web Gradio. Mở URL được cung cấp trong trình duyệt của bạn để tương tác với chatbot.
+    Lệnh này sẽ khởi chạy một giao diện web Gradio và tự động add chroma. Mở URL được cung cấp trong trình duyệt của bạn để tương tác với chatbot.
