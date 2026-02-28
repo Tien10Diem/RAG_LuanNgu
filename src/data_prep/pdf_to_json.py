@@ -1,3 +1,5 @@
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[2]
 from langchain_community.document_loaders import PyMuPDFLoader
 import re
 from collections import defaultdict

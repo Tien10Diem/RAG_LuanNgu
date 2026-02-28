@@ -1,7 +1,11 @@
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]
+
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 import os
+
 load_dotenv()
 
 api_embedd = os.getenv("api")

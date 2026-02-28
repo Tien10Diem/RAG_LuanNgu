@@ -1,7 +1,8 @@
 from langchain_core.tools import tool
 from src.data_prep.ingest_chroma import db
-
-retriever = db.as_retriever(search_kwargs={"k": 3})
+from src.data_prep.ingest_chroma import retriever
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[2]
 
 @tool
 def retrieval_tool(query: str):

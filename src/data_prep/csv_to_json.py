@@ -2,6 +2,8 @@ import json
 import csv
 from collections import defaultdict
 import os
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[2]
 
 if not os.path.exists(r"data\preprocessed\HanViet.json"):
 
