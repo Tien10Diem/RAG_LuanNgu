@@ -8,3 +8,6 @@ langchain_google_genai
 langchain_groq
 gradio
 openpyxl
+ragas 
+datasets
+scikit-learn

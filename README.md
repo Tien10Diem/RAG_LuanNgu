@@ -73,6 +73,15 @@ Toàn bộ quá trình này giúp chatbot có khả năng trả lời các câu 
     pip install -r requirements.txt
     ```
 
+4.  **Cấu hình API Key**:
+    Dự án này cần một API key từ Google để sử dụng mô hình Gemini.
+    - Tạo một tệp mới có tên `.env` trong thư mục gốc của dự án.
+    - Sao chép nội dung từ tệp `.env.example` và dán vào tệp `.env`.
+    - Thay thế `"YOUR_API_KEY"` bằng API key của bạn. Bạn có thể lấy API key tại [Google AI Studio](https://aistudio.google.com/app/apikey).
+    ```
+    GEMINI_API_KEY="YOUR_API_KEY"
+    ```
+
 ## Sử dụng
 
 1.  **Chạy Chatbot**:
