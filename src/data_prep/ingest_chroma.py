@@ -1,12 +1,14 @@
 from pathlib import Path
+import sys
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 from langchain_chroma import Chroma
 from src.llm_config import embedd
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import time
 import json
 from langchain_core.documents import Document
-import os
 
 db= Chroma(
     embedding_function=embedd,
@@ -18,29 +20,18 @@ text_split= RecursiveCharacterTextSplitter(
     chunk_size= 1000,
     chunk_overlap= 200
 )
+
 if db._collection.count() == 0:
+
     with open(r"data\preprocessed\luanngu.json", "r", encoding="utf-8") as f:
         data = json.load(f)
 
     documents = []
 
+    intro_end= []
     for key, value in data.items():
-        if key == "Lời mở đầu":
         
-            doc = Document(
-                page_content=f"Lời mở đầu:\n{value.strip()}",
-                metadata={"source": "Lời mở đầu", "type": "intro"}
-            )
-            documents.append(doc)
-
-        elif key=="Lời Kết":
-            doc = Document(
-                page_content=f"Lời kết:\n{value.strip()}",
-                metadata={"source": "Lời kết", "type": "conclusion"}
-            )
-            documents.append(doc)
-        
-        elif key.startswith("Thiên"):
+        if key.startswith("Thiên"):
             ten_thien = value.get("Tên thiên", "")
             chu_Han = value.get("Chữ Hán", "") 
             
@@ -60,16 +51,39 @@ if db._collection.count() == 0:
                     
                     doc = Document(page_content=page_content, metadata=metadata)
                     documents.append(doc)
-                
-    split_docs = text_split.split_documents(documents)
-    # db.add_documents(documents=split_docs)
+        elif key == "Lời mở đầu":
+            page_content= f"Lời mở đầu - {value.strip()}"
+            metadata= {
+                "type": "intro"
+            }
 
+            intro_end.append(Document(page_content=page_content, metadata=metadata))
+        elif key == "Lời Kết":
+            page_content= f"Lời kết - {value.strip()}"
+            metadata= {
+                "type": "conclusion"
+            }
+            intro_end.append(Document(page_content=page_content, metadata=metadata))
+
+
+    print(len(documents))
     batch_size = 25
+
+    for i in range(0, len(documents), batch_size):
+        batch = documents[i : i + batch_size]
+        db.add_documents(documents=batch)
+        print(f"{i + len(batch)}/{len(documents)}")
+        if i + batch_size < len(documents):
+            time.sleep(25)
+
+
+    split_docs = text_split.split_documents(intro_end)
     total = len(split_docs)
+    print(total)
 
     for i in range(0, total, batch_size):
         batch = split_docs[i : i + batch_size]
-    
+
         db.add_documents(batch)
         
         print(f"{i + len(batch)}/{total}")
@@ -77,4 +91,5 @@ if db._collection.count() == 0:
         if i + batch_size < total:
             time.sleep(25)
 
-retriever = db.as_retriever(search_kwargs={"k": 3})
+
+retriever = db.as_retriever(search_kwargs={"k": 5})
