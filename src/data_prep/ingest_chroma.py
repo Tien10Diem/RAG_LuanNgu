@@ -92,4 +92,4 @@ if db._collection.count() == 0:
             time.sleep(25)
 
 
-retriever = db.as_retriever(search_kwargs={"k": 5})
+retriever = db.as_retriever(search_kwargs={"k": 10})
