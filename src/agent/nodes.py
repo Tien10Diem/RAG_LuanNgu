@@ -8,6 +8,15 @@ from src.tools.retriever import retrieval_tool
 from src.tools.exact_book_tool import exact_book_tool
 from src.llm_config import model
 from langgraph.prebuilt import ToolNode
+from argparse import ArgumentParser
+
+def parse_args():
+    parser = ArgumentParser()
+    parser.add_argument("--his","-s", default=None, type=int, help="Memories")
+    return parser.parse_args()
+
+args = parse_args()
+
 
 tools = [search, retrieval_tool,exact_book_tool]
 llm_with_tools= model.bind_tools(tools)
@@ -30,7 +39,7 @@ HƯỚNG DẪN XỬ LÝ LUỒNG (ROUTING):
 - Dấu hiệu: Hỏi MỚI về ý nghĩa cụ thể, số lượng, định nghĩa, trích đoạn.
 - ĐỊNH TUYẾN CHỌN TOOL (TỐI QUAN TRỌNG):
   + Nếu hỏi TÌM BÀI CHÍNH XÁC (VD: Bài 2, bài cuối, chương cuối), ĐẾM SỐ LƯỢNG: BẮT BUỘC dùng `exact_book_tool`. (Tự phân tích nếu có đại từ "nó", "đó").
-  + Nếu hỏi Ý NGHĨA, ĐỊNH NGHĨA, NỘI DUNG: Dùng `retrieval_tool` hoặc `search`.
+  + Nếu hỏi Ý NGHĨA, ĐỊNH NGHĨA, NỘI DUNG: Dùng `retrieval_tool` hoặc `search`. Hãy tự suy luận xem cần giải thích nghĩa theo tổng quát (search tool) hay trong ngữ cảnh tài liệu (retrieval_tool tool)
 - PHÂN LUỒNG HÀNH ĐỘNG DỰA TRÊN DỮ LIỆU:
   + BƯỚC A (Khi chưa có thẻ <CONTEXT> trả về): BẠN CHỈ ĐƯỢC PHÉP GỌI TOOL. TUYỆT ĐỐI KHÔNG tự trả lời, KHÔNG tự sinh ra văn bản hội thoại để tránh lỗi API.
   + BƯỚC B (Khi đã có thẻ <CONTEXT> do tool trả về): Trả lời CHỈ DỰA VÀO văn bản trong <CONTEXT>. Phải trích xuất và ghi rõ tên Thiên, Bài cụ thể (Không được in nguyên chuỗi "[Thiên, Bài]"). 
@@ -48,13 +57,19 @@ QUY TẮC NGÔN NGỮ TỐI THƯỢNG (DANH SÁCH CẤM):
 - Câu trả lời bắt buộc sử dụng tiếng Việt (Ngoại trừ các tên riêng, danh từ). Câu hỏi không rõ đối tượng mặc định là hỏi về Luận Ngữ.
 - Không được tự ý đưa ra gợi ý, hoặc referens.
 - Docs không phải là nguồn của tài liệu mà nội dung của nó mới là nguồn.
-- Bài và thiên (chương) là khác nhau, cần phân biệt rõ.
+- Bài (7.2, 2.7,...) và thiên/chương (Chương 1: Học Nhi, Chương 20: Nghiêu viết,...) là khác nhau, cần phân biệt rõ.
 - Bài cuối chính là bài cuối cùng của thiên cuối (Bài 20.5) hãy tự động sửa câu hỏi thành bài này nếu như câu hỏi chỉ hỏi "bài cuối" mà không đề cập đến thiên (chương).
 - Hãy dùng thông tin tổng số bài của mỗi thiên được trả về bởi tool exact_book_tool để sửa câu hỏi thành bài cụ thể khi câu hỏi mơ hồ không cụ thể (như: bài đầu chương cuối, bài giữa chương 10,...).
 
 """
 def call_llm(state: stateAgent):
     messages = list(state['messages'])
+    
+    if args.his is not None and args.his > 0:
+      his= args.his*2
+      messages= messages[-his:]
+    
+  
     messages = [SystemMessage(content=system_prompt)] + messages
     
     rs= llm_with_tools.invoke(messages)
