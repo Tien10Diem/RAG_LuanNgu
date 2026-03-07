@@ -6,7 +6,7 @@ with open(r"data\preprocessed\HanViet.json", "r", encoding="utf-8") as f:
     
 @tool
 def search(query: str):
-    """Chỉ sử dụng search tool nếu câu hỏi liên quan đến giải thích nghĩa của từ, câu trong tài liệu.
+    """Sử dụng search tool nếu câu hỏi liên quan đến giải thích nghĩa tổng quát, định nghĩa của từ hoặc câu xuất hiện trong tài liệu.
     Hãy sử dụng kết quả trả về để trả lời câu hỏi. 
     Khi trả lời thì hãy kèm thêm thông tin lấy từ đâu trong tài liệu HanViet.json.
     """
