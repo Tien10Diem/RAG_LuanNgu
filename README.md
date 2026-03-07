@@ -1,92 +1,124 @@
-# Chatbot RAG Luận Ngữ
+# Chatbot RAG Luận Ngữ - Khổng Tử
 
-Dự án này cài đặt một chatbot có thể trả lời các câu hỏi về Luận Ngữ của Khổng Tử bằng cách sử dụng pipeline RAG (Retrieval-Augmented Generation). Chatbot sử dụng giao diện Gradio để tương tác với người dùng.
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![LangChain](https://img.shields.io/badge/LangChain-🦜️🔗-blueviolet)](https://www.langchain.com/)
+[![Gradio](https://img.shields.io/badge/Gradio-🚀-orange)](https://www.gradio.app/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Tính năng
+Dự án này xây dựng một chatbot ứng dụng kỹ thuật **Retrieval-Augmented Generation (RAG)**, cho phép người dùng đặt câu hỏi và nhận câu trả lời thông minh về nội dung cuốn **Luận Ngữ** của Khổng Tử. Chatbot được xây dựng với kiến trúc agentic mạnh mẽ sử dụng LangGraph, tích hợp nhiều công cụ để cung cấp câu trả lời chính xác và đa dạng.
 
--   **Giao diện Chatbot**: Giao diện web thân thiện với người dùng được xây dựng bằng Gradio.
--   **Pipeline RAG**: Sử dụng pipeline RAG để truy xuất các đoạn văn bản có liên quan từ Luận Ngữ và tạo ra câu trả lời.
--   **Vector Store**: Sử dụng ChromaDB làm kho lưu trữ vector để truy xuất các đoạn văn bản hiệu quả.
--   **Tích hợp LLM**: Tích hợp với các mô hình ngôn ngữ từ Google Gemini và Groq bằng LangChain.
--   **Kiến trúc Mô-đun**: Dự án được cấu trúc với các mô-đun riêng biệt cho việc chuẩn bị dữ liệu, logic của agent và ứng dụng chính.
+## ✨ Tính Năng Nổi Bật
 
-## Chi tiết về Luồng hoạt động
+-   **Giao Diện Trực Quan**: Tương tác thân thiện với người dùng thông qua giao diện web được xây dựng bằng **Gradio**.
+-   **Kiến Trúc Agentic**: Sử dụng **LangGraph** để điều phối một agent thông minh, có khả năng lựa chọn và sử dụng công cụ phù hợp với câu hỏi của người dùng.
+-   **Hệ Thống Đa Công Cụ (Multi-Tool)**:
+    1.  **Truy Vấn Ngữ Cảnh (RAG Retriever)**: Tìm kiếm và truy xuất các đoạn văn bản liên quan nhất từ kho tài liệu Luận Ngữ được vector hóa bằng **ChromaDB**.
+    2.  **Tra Cứu Từ Điển Hán-Việt**: Giải thích nghĩa của các từ hoặc cụm từ Hán-Việt có trong tài liệu.
+    3.  **Tra Cứu Cấu Trúc Sách**: Cung cấp thông tin về cấu trúc của sách Luận Ngữ (số chương, số bài trong mỗi chương).
+-   **Tích Hợp LLM**: Tận dụng sức mạnh của các mô hình ngôn ngữ lớn (LLM) từ **Google Gemini** và **Groq** để tổng hợp và tạo ra câu trả lời cuối cùng.
+-   **Quản Lý Trạng Thái Hội Thoại**: Lưu trữ lịch sử cuộc trò chuyện để các câu trả lời sau có ngữ cảnh hơn.
+-   **Kiến Trúc Module Hóa**: Mã nguồn được tổ chức rõ ràng, tách biệt các thành phần: chuẩn bị dữ liệu, agent, công cụ, và giao diện.
 
-Dự án hoạt động dựa trên một pipeline RAG (Retrieval-Augmented Generation) được xây dựng bằng LangChain và LangGraph. Luồng hoạt động chi tiết như sau:
+## ⚙️ Luồng Hoạt Động
 
-1.  **Chuẩn bị dữ liệu (`src/data_prep`)**:
-    *   Dữ liệu gốc từ file `LuanNgu.pdf` được xử lý và chuyển đổi thành file `luanngu.json` với các tên thiên, bài, nội dung.
-    *   Script `ingest_chroma.py` đọc file JSON này, tạo các đối tượng `Document` của LangChain.
-    *   Các văn bản lớn được chia thành các đoạn nhỏ hơn (chunks) bằng `RecursiveCharacterTextSplitter` để tối ưu hóa việc truy xuất.
+Hệ thống hoạt động theo một luồng xử lý thông minh, bắt đầu từ câu hỏi của người dùng và kết thúc bằng câu trả lời do LLM tạo ra.
 
-2.  **Vector Store và Embedding**:
-    *   Các chunks văn bản sau đó được "vector hóa" (embedding) bằng mô hình embedding của Google (thông qua `langchain_google_genai`).
-    *   Các vector này cùng với nội dung text gốc được lưu trữ trong một cơ sở dữ liệu vector là **ChromaDB** (`data/vectorstore`). Quá trình này được gọi là "ingestion" và chỉ cần thực hiện một lần.
+1.  **Giao Diện Người Dùng**: Người dùng nhập câu hỏi vào giao diện Gradio.
+2.  **Agent Điều Phối (LangGraph)**:
+    -   Câu hỏi được chuyển đến một agent được xây dựng bằng `LangGraph`.
+    -   Agent này đóng vai trò như một "bộ não" trung tâm, phân tích câu hỏi để quyết định xem có cần sử dụng công cụ nào không, hay có thể trả lời trực tiếp.
+3.  **Lựa Chọn Công Cụ**: Dựa trên phân tích, agent sẽ lựa chọn một trong các công cụ sau:
+    -   **`retriever_tool`**: Nếu là câu hỏi chung về nội dung, triết lý trong Luận Ngữ. Công cụ này sẽ tìm kiếm trong ChromaDB để lấy ra các đoạn văn bản liên quan nhất.
+    -   **`dictionary_search_tool`**: Nếu câu hỏi yêu cầu giải thích một từ Hán-Việt. Công cụ này sẽ tra cứu trong file `HanViet.json`.
+    -   **`exact_book_tool`**: Nếu câu hỏi liên quan đến cấu trúc sách (ví dụ: "Thiên 10 có bao nhiêu bài?").
+4.  **Tạo Ngữ Cảnh (Context)**: Kết quả từ công cụ (nếu được sử dụng) sẽ được dùng làm ngữ cảnh bổ sung.
+5.  **Gọi LLM**:
+    -   Agent tổng hợp câu hỏi gốc, lịch sử trò chuyện và ngữ cảnh từ công cụ thành một prompt hoàn chỉnh.
+    -   Prompt này được gửi đến mô hình LLM (Gemini/Groq).
+6.  **Tạo và Hiển Thị Câu Trả Lời**: LLM tạo ra câu trả lời dựa trên thông tin được cung cấp và trả về cho giao diện Gradio để hiển thị cho người dùng.
 
-3.  **Xử lý yêu cầu người dùng (`app.py` và `src/agent`)**:
-    *   Khi người dùng gửi một câu hỏi thông qua giao diện Gradio, câu hỏi này sẽ được chuyển đến agent của LangGraph.
-    *   **Retrieval**: Agent sử dụng một công cụ retriever (`src/tools/retriever.py`) để tìm kiếm trong ChromaDB. Nó sẽ tìm và trả về 3 đoạn văn bản (chunks) có liên quan nhất đến câu hỏi của người dùng dựa trên sự tương đồng về mặt ngữ nghĩa của vector.
-    *   **Generation**: Các đoạn văn bản được truy xuất này, cùng với câu hỏi gốc và lịch sử cuộc trò chuyện (được quản lý bởi `MemorySaver` của LangGraph), được đóng gói thành một "prompt" hoàn chỉnh.
-    *   Prompt này được gửi đến một mô hình ngôn ngữ lớn (LLM) như Google Gemini hoặc Groq để tạo ra câu trả lời cuối cùng.
-    *   **Agent Graph**: Logic của agent được định nghĩa trong `src/agent/graph.py` sử dụng `StateGraph`. Graph này có các node chính là `call_llm` (gọi LLM) và `action` (thực hiện một công cụ, ví dụ như retriever). Cạnh điều kiện `should_cont` quyết định luồng tiếp theo: liệu agent cần tiếp tục sử dụng công cụ hay đã có đủ thông tin để trả lời.
-
-4.  **Hiển thị kết quả**:
-    *   Câu trả lời do LLM tạo ra được trả về cho `app.py` và hiển thị trên giao diện Gradio cho người dùng.
-
-Toàn bộ quá trình này giúp chatbot có khả năng trả lời các câu hỏi một cách chính xác bằng cách dựa trên ngữ cảnh được cung cấp từ kho tài liệu "Luận Ngữ", thay vì chỉ dựa vào kiến thức đã được huấn luyện trước của LLM.
-
-## Cấu trúc Dự án
+## 🗂️ Cấu Trúc Dự Án
 
 ```
 .
-├── app.py                # Tệp ứng dụng chính với giao diện Gradio
+├── app.py                # Ứng dụng chính, khởi chạy giao diện Gradio
 ├── requirements.txt      # Các thư viện Python cần thiết
+├── .env.example          # Tệp ví dụ cho các biến môi trường
 ├── data/
-│   ├── preprocessed/     # Các tệp dữ liệu đã được tiền xử lý
-│   ├── raw/              # Các tệp dữ liệu thô (PDF, CSV)
-│   └── vectorstore/      # Kho lưu trữ vector ChromaDB
+│   ├── raw/              # Dữ liệu thô (PDF, CSV)
+│   ├── preprocessed/     # Dữ liệu đã qua xử lý (JSON)
+│   └── vectorstore/      # Kho vector ChromaDB
 ├── pipeline/
-│   └── pipeline.ipynb    # Jupyter notebook cho pipeline xử lý dữ liệu
+│   └── pipeline.ipynb    # Jupyter Notebook cho luồng xử lý và chuẩn bị dữ liệu
 └── src/
-    ├── agent/            # Logic của agent với LangGraph
-    ├── data_prep/        # Các script để chuẩn bị và nhập dữ liệu
-    ├── llm_config.py     # Cấu hình cho các mô hình ngôn ngữ
-    └── tools/            # Các công cụ truy xuất và khác
+    ├── llm_config.py     # Cấu hình các mô hình ngôn ngữ (LLMs)
+    ├── agent/            # Logic của agent (State, Nodes, Graph) với LangGraph
+    ├── data_prep/        # Các script chuẩn bị dữ liệu (ingestion)
+    └── tools/            # Các công cụ được agent sử dụng (retriever, dictionary,...)
 ```
 
-## Cài đặt
+## 🚀 Cài Đặt và Sử Dụng
 
-1.  Sao chép repository:
+### 1. Chuẩn Bị Môi Trường
+
+-   Sao chép (clone) repository này về máy:
     ```bash
-    git clone <repository-url>
-    cd <repository-directory>
+    git clone https://github.com/your-username/RAG_pdf.git
+    cd RAG_pdf
     ```
-
-2.  Tạo và kích hoạt môi trường ảo (tùy chọn nhưng được khuyến nghị):
+-   Tạo một môi trường ảo (khuyến khích) và kích hoạt nó:
     ```bash
     python -m venv venv
-    source venv/bin/activate  # Trên Windows, sử dụng `venv\Scripts\activate`
+    # Trên Windows
+    venv\Scripts\activate
+    # Trên macOS/Linux
+    source venv/bin/activate
     ```
 
-3.  Cài đặt các thư viện cần thiết:
-    ```bash
-    pip install -r requirements.txt
-    ```
+### 2. Cài Đặt Thư Viện
 
-4.  **Cấu hình API Key**:
-    Dự án này cần một API key từ Google để sử dụng mô hình Gemini.
-    - Tạo một tệp mới có tên `.env` trong thư mục gốc của dự án.
-    - Sao chép nội dung từ tệp `.env.example` và dán vào tệp `.env`.
-    - Thay thế `"YOUR_API_KEY"` bằng API key của bạn. Bạn có thể lấy API key tại [Google AI Studio](https://aistudio.google.com/app/apikey).
+Cài đặt tất cả các thư viện cần thiết từ file `requirements.txt`:
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Cấu Hình API Key
+
+Dự án yêu cầu API key từ Google AI Studio để sử dụng mô hình Gemini.
+
+-   Tạo một tệp `.env` ở thư mục gốc của dự án.
+-   Sao chép nội dung từ `.env.example` và dán vào tệp `.env`.
+-   Thay thế `YOUR_API_KEY` bằng API key của bạn.
     ```
     GEMINI_API_KEY="YOUR_API_KEY"
     ```
+    Bạn có thể lấy key tại [Google AI Studio](https://aistudio.google.com/app/apikey).
 
-## Sử dụng
+### 4. Chạy Ứng Dụng
 
-1.  **Chạy Chatbot**:
-    Để khởi động chatbot, hãy chạy tệp `app.py`:
-    ```bash
-    python app.py
-    ```
-    Lệnh này sẽ khởi chạy một giao diện web Gradio và tự động add chroma. Mở URL được cung cấp trong trình duyệt của bạn để tương tác với chatbot.
+Để khởi động chatbot, chạy lệnh sau:
+```bash
+python app.py
+```
+
+Để tiết kiệm token api tôi khuyến nghị nên hạn chế memories của cuộc hội thoại với tham số -s với tiếp đó là số lượng hội thoại mà bạn muốn lưu trữ. Ví dụ:
+
+```bash
+python app.py -s 2
+```
+
+Ứng dụng sẽ tự động xử lý dữ liệu và tạo kho vector ChromaDB nếu chưa có. Sau khi khởi tạo xong, một URL Gradio sẽ được cung cấp trong terminal. Mở URL này trên trình duyệt để bắt đầu trò chuyện.
+
+### 5. Ví Dụ Câu Hỏi
+
+Bạn có thể thử các loại câu hỏi sau để trải nghiệm các tính năng của chatbot:
+
+-   **Câu hỏi chung**:
+    -   `Khổng Tử nói gì về người quân tử?`
+    -   `Thế nào là đạo hiếu?`
+-   **Câu hỏi tra từ điển**:
+    -   `Giải thích từ "lễ"?`
+    -   `"Trung thứ" nghĩa là gì?`
+-   **Câu hỏi về cấu trúc sách**:
+    -   `Thiên cuối cùng có bao nhiêu bài?`
+    -   `Cấu trúc của sách Luận Ngữ như thế nào?`
